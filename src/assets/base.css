@@ -58,6 +58,14 @@
   font-weight: normal;
 }
 
+main {
+  position: absolute;
+  width: calc(100% - 70px);
+  height: calc(100% - 70px);
+  top: 70px;
+  left: 70px;
+}
+
 body {
   min-height: 100vh;
   color: var(--color-text);

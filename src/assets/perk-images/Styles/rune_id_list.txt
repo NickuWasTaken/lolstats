@@ -1,0 +1,30 @@
+Dark Harvest: 8128
+Electrocute: 8112
+Hail of Blades: 9923
+Predator: 8124
+
+Press the attack: 8005
+Lethal Tempo: 8008
+Fleet Footwork: 8021
+Conqueror: 8010
+
+Summon Aery: 8214
+Arcane Comet: 8229
+Phase Rush: 8230
+
+Grasp of the Dying: 8437
+After Shock: 8439
+Guardian: 8465
+
+Glacial Augment: 8351
+Unsealed Spellbook: 8360
+First Strike: 8369
+
+
+Pages:
+Precision 8000
+Domination 8100
+Sorcery 8200
+Inspiration 8300
+Resolve 8400
+

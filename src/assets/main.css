@@ -1,10 +1,48 @@
 @import './base.css';
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+}
+
+.df {
+  display: flex;
+}
+
+.fc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.jcs {
+  justify-content: flex-start !important;
+}
+
+.jcsa {
+  justify-content: space-around !important;
+}
+
+.jcsb {
+  justify-content: space-between !important;
+}
+
+.jce {
+  justify-content: flex-end !important;
+}
+
+.ais {
+  align-items: start;
+}
+
+.aic {
+  align-items: center;
+}
+
+.aie {
+  align-items: end;
+}
+
+.jcc {
+  justify-content: center !important;
 }
 
 a,
@@ -23,13 +61,8 @@ a,
 
 @media (min-width: 1024px) {
   body {
-    display: flex;
-    place-items: center;
   }
 
   #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
   }
 }
