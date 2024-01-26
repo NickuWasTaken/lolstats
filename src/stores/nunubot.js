@@ -22,6 +22,7 @@ export const nunubot = defineStore('nunu', {
       )
       this.profileData = response.data
     },
+
     async fetchSummonerMatchListById() {
       let region = this.summonerRegion
       let id = this.profileData.puuid
@@ -38,12 +39,13 @@ export const nunubot = defineStore('nunu', {
       let response = await axios.get(
         'https://' +
           region +
-          '.api.riotgames.com/lol/match/v5/matches/by-puuid/' +
+          `.api.riotgames.com/lol/match/v5/matches/by-puuid/` +
           id +
           '/ids?1673481600&count=20&api_key=' +
           import.meta.env.VITE_RGAPI
       )
       this.matchHistory = response.data
+
       let i = 0
       while (i < this.matchHistory.length) {
         const currentMatch = this.matchHistory[i]
@@ -51,10 +53,10 @@ export const nunubot = defineStore('nunu', {
         let p = 0
         var championsInGame = []
         var championsInGameName = {}
+
         while (p < 10) {
           championsInGameName[i] = this.matchData[i].info.participants[p].championName
           await championsInGame.push(championsInGameName[i])
-
           if (this.matchData[i].info.participants[p].summonerName === this.profileData.name) {
             var obj = {
               summonerName: this.profileData.name,
@@ -86,7 +88,7 @@ export const nunubot = defineStore('nunu', {
             }
           }
           p++
-        } // g0dfr0mth3s34
+        }
         this.matchInfo.matchHistory = i
         await this.matchInfo.push(obj)
         i++
@@ -96,7 +98,7 @@ export const nunubot = defineStore('nunu', {
           }, 2000)
         } // RGAPI tillader kun 20 kald per second men, da der  foretages også andre kald så
       } //  der ventes 1sek efter 15 kald, for at være sikker på ikke at blive midlertidigt udelukket
-    },
+    }, // g0dfr0mth3s34
     async fetchMatchDataById(region, matchId) {
       let response = await axios.get(
         'https://' +
