@@ -41,7 +41,7 @@ export const nunubot = defineStore('nunu', {
           region +
           `.api.riotgames.com/lol/match/v5/matches/by-puuid/` +
           id +
-          '/ids?1673481600&count=20&api_key=' +
+          '/ids?1673481600&count=16&api_key=' +
           import.meta.env.VITE_RGAPI
       )
       this.matchHistory = response.data
