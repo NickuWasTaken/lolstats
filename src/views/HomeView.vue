@@ -1,6 +1,7 @@
 <script setup>
 import Schedule from '@/components/elements/ScheduleElement.vue'
 import ChampTop5 from '@/components/elements/ChampTop5.vue'
+import Stream from '@/components/elements/Stream.vue'
 </script>
 
 <template>
@@ -9,7 +10,9 @@ import ChampTop5 from '@/components/elements/ChampTop5.vue'
       <img src="@/assets/images/banner.png" alt="" />
     </div>
     <div class="wrapper">
-      <div class="leftWrapper"></div>
+      <div class="leftWrapper">
+        <Stream />
+      </div>
       <div class="rightWrapper">
         <Schedule />
         <ChampTop5 />
