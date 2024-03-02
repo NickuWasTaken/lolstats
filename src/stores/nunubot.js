@@ -6,6 +6,12 @@ export const nunubot = defineStore('nunu', {
     summonerName: String,
     summonerRegion: String,
     profileData: {},
+    profileRankStats: {},
+    flexRankStats: {
+      tier: 'Unranked',
+      rank: ''
+    },
+    soloRankStats: {},
     matchHistory: [],
     matchData: [],
     matchInfo: []
@@ -21,6 +27,26 @@ export const nunubot = defineStore('nunu', {
           import.meta.env.VITE_RGAPI
       )
       this.profileData = response.data
+    },
+
+    async fetchSummonerLeagueByEncId() {
+      let EncId = this.profileData.id
+      let region = this.summonerRegion
+      let response = await axios.get(
+        'https://' +
+          region +
+          '.api.riotgames.com/lol/league/v4/entries/by-summoner/' +
+          EncId +
+          '?api_key=' +
+          import.meta.env.VITE_RGAPI
+      )
+      this.soloRankStats = response.data
+      if (response.data[0].queueType == 'RANKED_FLEX_SR') {
+        this.flexRankStats = response.data[0]
+        this.soloRankStats = response.data[1]
+      } else {
+        this.soloRankStats = response.data[0]
+      }
     },
 
     async fetchSummonerMatchListById() {
@@ -57,6 +83,16 @@ export const nunubot = defineStore('nunu', {
         while (p < 10) {
           championsInGameName[i] = this.matchData[i].info.participants[p].championName
           await championsInGame.push(championsInGameName[i])
+          if (
+            this.matchData[i].info.gameMode == 'CLASSIC' &&
+            this.matchData[i].info.queueId === 420
+          ) {
+            var MapType = 'Solo/Duo'
+          } else if (this.matchData[i].info.gameMode == 'CLASSIC') {
+            var MapType = 'SR 5v5'
+          } else if (this.matchData[i].info.gameMode == 'ARAM') {
+            var MapType = 'ARAM'
+          }
           if (this.matchData[i].info.participants[p].summonerName === this.profileData.name) {
             var obj = {
               summonerName: this.profileData.name,
@@ -72,7 +108,7 @@ export const nunubot = defineStore('nunu', {
               deaths: this.matchData[i].info.participants[p].deaths,
               kills: this.matchData[i].info.participants[p].kills,
               assists: this.matchData[i].info.participants[p].assists,
-              gameType: this.matchData[i].info.gameMode,
+              gameType: MapType,
               summonerSpell1: this.matchData[i].info.participants[p].summoner1Id,
               summonerSpell2: this.matchData[i].info.participants[p].summoner2Id,
               creatureScore: this.matchData[i].info.participants[p].totalMinionsKilled,
@@ -98,7 +134,7 @@ export const nunubot = defineStore('nunu', {
           }, 2000)
         } // RGAPI tillader kun 20 kald per second men, da der  foretages også andre kald så
       } //  der ventes 1sek efter 15 kald, for at være sikker på ikke at blive midlertidigt udelukket
-    }, // g0dfr0mth3s34
+    }, // Sample søgenavn: g0dfr0mth3s34, Nicku
     async fetchMatchDataById(region, matchId) {
       let response = await axios.get(
         'https://' +

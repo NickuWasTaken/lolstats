@@ -1,14 +1,71 @@
 <script setup>
 import { nunubot } from '@/stores/nunubot'
+import { ref, onMounted } from 'vue'
 
 const lolstats = nunubot()
 await lolstats.fetchSummonerByName(lolstats.summonerRegion, lolstats.summonerName)
+await lolstats.fetchSummonerLeagueByEncId()
 await lolstats.fetchSummonerMatchListById(lolstats.summonerRegion, lolstats.profileData.puuid)
-console.log('This is Summonername:' + lolstats.summonerName)
-console.log('This is Summoner Region:' + lolstats.summonerRegion)
-console.log(lolstats.profileData)
-console.log(lolstats.matchInfo)
-console.log(lolstats.matchData[0].info.participants[4].summonerName)
+console.log('This is Summonername: ' + lolstats.summonerName)
+console.log('This is Summoner Region: ' + lolstats.summonerRegion)
+//console.log(lolstats.profileData)
+//console.log(lolstats.matchInfo)
+console.log(lolstats.matchData)
+console.log(lolstats.matchHistory.length)
+
+let soloRankStats = lolstats.soloRankStats
+let flexRankStats = lolstats.flexRankStats
+
+const FindRecentlyPlayedWith = async () => {
+  let i = 0
+  const playerCounter = {}
+  const playerList = []
+  const ChampList = []
+  while (i < lolstats.matchHistory.length) {
+    let p = 0
+    while (p < 10) {
+      playerList.push(lolstats.matchData[i].info.participants[p].summonerName)
+      if (lolstats.matchData[i].info.participants[p].summonerName === lolstats.profileData.name) {
+        ChampList.push(lolstats.matchData[i].info.participants[p].championName)
+      }
+      p++
+    }
+    i++
+  }
+  playerList.forEach(function (x) {
+    playerCounter[x] = (playerCounter[x] || 0) + 1
+  })
+
+  const recentlyCounted = [playerCounter]
+  const recentlyPlayedWith = [
+    {
+      name: String,
+      rank: String,
+      wins: Number,
+      losses: Number
+    }
+  ]
+  recentlyCounted.forEach((res) => {
+    Object.entries(res).forEach(([key, value]) => {
+      if (value > 4 && value != lolstats.matchHistory.length) {
+        recentlyPlayedWith.name = key
+      }
+    })
+  })
+
+  while (i < recentlyPlayedWith.length) {
+    i++
+  }
+  //console.log(playerCounter)
+  console.log(recentlyPlayedWith)
+  console.log(ChampList)
+}
+onMounted(async () => {
+  await FindRecentlyPlayedWith()
+  await setTimeout(() => {
+    console.log('Delayed for 1 second.')
+  }, '1000')
+})
 </script>
 
 <template>
@@ -89,7 +146,9 @@ console.log(lolstats.matchData[0].info.participants[4].summonerName)
           </div>
           <div>
             <img src="" alt="" />
-            <p>Platinum VI</p>
+            <p style="text-transform: capitalize">
+              {{ soloRankStats.tier + ' ' + soloRankStats.rank }}
+            </p>
           </div>
         </div>
         <div class="leftTab leftTab--flex">
@@ -99,7 +158,7 @@ console.log(lolstats.matchData[0].info.participants[4].summonerName)
           </div>
           <div>
             <img src="" alt="" />
-            <p>Platinum VI</p>
+            <p>{{ flexRankStats.tier + ' ' + flexRankStats.rank }}</p>
           </div>
         </div>
         <div class="championStatWrapper">
@@ -169,59 +228,11 @@ console.log(lolstats.matchData[0].info.participants[4].summonerName)
             <p class="premadeRatio">Win ratio</p>
           </div>
 
-          <div class="leftTab leftTab--premade">
+          <div class="leftTab leftTab--premade" v-for="premade in recentlyPlayedWith">
             <div class="premadePlayer summonerWrapper">
               <img src="@/assets/images/profileIcon.png" alt="" class="summonerThumb" />
               <div class="textwrap">
-                <p class="premadeName">Nicku</p>
-                <p class="premadeRank">Silver VI</p>
-              </div>
-            </div>
-            <p class="premadeGames">14</p>
-            <p class="premadeWL">7 - 7</p>
-            <p class="premadeRatio">50%</p>
-          </div>
-          <div class="leftTab leftTab--premade">
-            <div class="premadePlayer summonerWrapper">
-              <img src="@/assets/images/profileIcon.png" alt="" class="summonerThumb" />
-              <div class="textwrap">
-                <p class="premadeName">Nicku</p>
-                <p class="premadeRank">Silver VI</p>
-              </div>
-            </div>
-            <p class="premadeGames">14</p>
-            <p class="premadeWL">7 - 7</p>
-            <p class="premadeRatio">50%</p>
-          </div>
-          <div class="leftTab leftTab--premade">
-            <div class="premadePlayer summonerWrapper">
-              <img src="@/assets/images/profileIcon.png" alt="" class="summonerThumb" />
-              <div class="textwrap">
-                <p class="premadeName">Nicku</p>
-                <p class="premadeRank">Silver VI</p>
-              </div>
-            </div>
-            <p class="premadeGames">14</p>
-            <p class="premadeWL">7 - 7</p>
-            <p class="premadeRatio">50%</p>
-          </div>
-          <div class="leftTab leftTab--premade">
-            <div class="premadePlayer summonerWrapper">
-              <img src="@/assets/images/profileIcon.png" alt="" class="summonerThumb" />
-              <div class="textwrap">
-                <p class="premadeName">Nicku</p>
-                <p class="premadeRank">Silver VI</p>
-              </div>
-            </div>
-            <p class="premadeGames">14</p>
-            <p class="premadeWL">7 - 7</p>
-            <p class="premadeRatio">50%</p>
-          </div>
-          <div class="leftTab leftTab--premade">
-            <div class="premadePlayer summonerWrapper">
-              <img src="@/assets/images/profileIcon.png" alt="" class="summonerThumb" />
-              <div class="textwrap">
-                <p class="premadeName">Nicku</p>
+                <p class="premadeName">{{ premade.name }}</p>
                 <p class="premadeRank">Silver VI</p>
               </div>
             </div>
@@ -261,7 +272,7 @@ console.log(lolstats.matchData[0].info.participants[4].summonerName)
           <div class="scoreWrapper">
             <p class="gameResult gameResult--good" v-if="match.teamWin">Victory</p>
             <p class="gameResult gameResult--bad" v-else>Defeat</p>
-            <p class="gameMode">ARAM</p>
+            <p class="gameMode">{{ match.gameType }}</p>
           </div>
 
           <div class="scoreWrapper">
@@ -374,11 +385,11 @@ console.log(lolstats.matchData[0].info.participants[4].summonerName)
       <aside class="contentWrapperRight">
         <section class="profile--overview">
           <ul class="profile--overview__menu">
-            <li class="active">
+            <li>
               <p>All Queues</p>
               <div class="underlined" />
             </li>
-            <li>
+            <li class="active">
               <p>Solo</p>
               <div class="underlined" />
             </li>
@@ -396,8 +407,18 @@ console.log(lolstats.matchData[0].info.participants[4].summonerName)
             </li>
           </ul>
           <div class="df jcsa">
-            <div class="profile--overview__games df fc"><p>117</p></div>
-            <div class="profile--overview__winrate df fc"><p>63%</p></div>
+            <div class="profile--overview__games df fc">
+              <p>{{ soloRankStats.wins + soloRankStats.losses }}</p>
+            </div>
+            <div class="profile--overview__winrate df fc">
+              <p>
+                {{
+                  Math.floor(
+                    (soloRankStats.wins / (soloRankStats.wins + soloRankStats.losses)) * 100
+                  ) + ' %'
+                }}
+              </p>
+            </div>
           </div>
           <div class="profile--overview__classes df jcsa">
             <div class="df fc"><p>Games played</p></div>
