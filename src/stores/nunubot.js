@@ -11,10 +11,22 @@ export const nunubot = defineStore('nunu', {
       tier: 'Unranked',
       rank: ''
     },
-    soloRankStats: {},
+    soloRankStats: {
+      tier: 'Unranked',
+      rank: ''
+    },
     matchHistory: [],
     matchData: [],
-    matchInfo: []
+    matchInfo: [],
+    championStats: [],
+    recentlyPlayedWith: [
+      {
+        puuid: String,
+        name: String,
+        wins: 0,
+        losses: 0
+      }
+    ]
   }),
   actions: {
     async fetchSummonerByName(region, name) {
@@ -67,7 +79,7 @@ export const nunubot = defineStore('nunu', {
           region +
           `.api.riotgames.com/lol/match/v5/matches/by-puuid/` +
           id +
-          '/ids?1673481600&count=16&api_key=' +
+          '/ids?1673481600&count=25&api_key=' +
           import.meta.env.VITE_RGAPI
       )
       this.matchHistory = response.data
@@ -83,15 +95,16 @@ export const nunubot = defineStore('nunu', {
         while (p < 10) {
           championsInGameName[i] = this.matchData[i].info.participants[p].championName
           await championsInGame.push(championsInGameName[i])
+          var MapType
           if (
             this.matchData[i].info.gameMode == 'CLASSIC' &&
             this.matchData[i].info.queueId === 420
           ) {
-            var MapType = 'Solo/Duo'
+            MapType = 'Solo/Duo'
           } else if (this.matchData[i].info.gameMode == 'CLASSIC') {
-            var MapType = 'SR 5v5'
+            MapType = 'SR 5v5'
           } else if (this.matchData[i].info.gameMode == 'ARAM') {
-            var MapType = 'ARAM'
+            MapType = 'ARAM'
           }
           if (this.matchData[i].info.participants[p].summonerName === this.profileData.name) {
             var obj = {
@@ -131,7 +144,7 @@ export const nunubot = defineStore('nunu', {
         if (i % 15 == 1) {
           setTimeout(function () {
             console.log('Waiting for cooldowns')
-          }, 2000)
+          }, 3000)
         } // RGAPI tillader kun 20 kald per second men, da der  foretages også andre kald så
       } //  der ventes 1sek efter 15 kald, for at være sikker på ikke at blive midlertidigt udelukket
     }, // Sample søgenavn: g0dfr0mth3s34, Nicku
@@ -147,6 +160,114 @@ export const nunubot = defineStore('nunu', {
       if (response.data.info.participants.length == 10) {
         this.matchData.push(response.data)
       }
+    },
+
+    async findChampionStats() {
+      let i = 0
+      while (i < this.matchHistory.length) {
+        let p = 0
+        while (p < 10) {
+          if (this.matchData[i].info.participants[p].summonerName === this.profileData.name) {
+            var win = 0
+            if (this.matchData[i].info.participants[p].win === true) {
+              win = 1
+            } else {
+              win = 0
+            }
+            var obj = {
+              championName: this.matchData[i].info.participants[p].championName,
+              championStats: {
+                teamWin: win,
+                deaths: this.matchData[i].info.participants[p].deaths,
+                kills: this.matchData[i].info.participants[p].kills,
+                assists: this.matchData[i].info.participants[p].assists,
+                gamePlayed: 1
+              }
+            }
+          }
+          p++
+        }
+        await this.championStats.push(obj)
+        i++
+      }
+
+      const mergedStats = {}
+
+      this.championStats.forEach(({ championName, championStats }) => {
+        if (!mergedStats[championName]) {
+          mergedStats[championName] = { ...championStats }
+        } else {
+          // Sum the stats for duplicates
+          Object.keys(championStats).forEach((stat) => {
+            mergedStats[championName][stat] += championStats[stat]
+          })
+        }
+      })
+
+      // Convert the mergedStats object back to the desired array format
+      const mergedArray = Object.keys(mergedStats).map((championName) => ({
+        championName,
+        championStats: mergedStats[championName]
+      }))
+
+      const sortedData = mergedArray.sort(
+        (a, b) => b.championStats.gamePlayed - a.championStats.gamePlayed
+      )
+
+      this.championStats = sortedData
+    },
+
+    async FindRecentlyPlayedWith() {
+      let i = 0
+      const playerCounter = {}
+      const playerList = []
+      while (i < this.matchHistory.length) {
+        let p = 0
+        while (p < 10) {
+          playerList.push(this.matchData[i].info.participants[p].puuid)
+          p++
+        }
+        i++
+      }
+      playerList.forEach(function (x) {
+        playerCounter[x] = (playerCounter[x] || 0) + 1
+      })
+
+      const recentlyCounted = [playerCounter]
+
+      let y = 0
+      recentlyCounted.forEach((res) => {
+        Object.entries(res).forEach(([key, value]) => {
+          if (value >= 4 && value != this.matchHistory.length) {
+            this.recentlyPlayedWith[y].puuid = key
+            y++
+          }
+        })
+      })
+
+      /* --------- Stopper matchhistory fra at virke -------- ??
+      let o = 0
+      while (o < this.recentlyPlayedWith.length) {
+        let participantValues = [this.profileData.puuid, this.recentlyPlayedWith[o].puuid]
+        const games = this.matchData
+        const results = games.map((game) => {
+          // Directly map participants, modifying only those of interest
+          game.info.participants = game.info.participants.map((participant) => {
+            if (participantValues.includes(participant.puuid)) {
+              if (participant.summonerName != this.profileData.name) {
+                this.recentlyPlayedWith[o].name = participant.summonerName
+
+                if (participant.win) {
+                  this.recentlyPlayedWith[o].wins++
+                } else {
+                  this.recentlyPlayedWith[o].losses++
+                }
+              }
+            }
+          })
+        })
+        o++
+      }*/
     }
   },
   persist: true

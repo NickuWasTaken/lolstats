@@ -1,11 +1,12 @@
 <script setup>
 import { nunubot } from '@/stores/nunubot'
-import { ref, onMounted } from 'vue'
 
 const lolstats = nunubot()
 await lolstats.fetchSummonerByName(lolstats.summonerRegion, lolstats.summonerName)
 await lolstats.fetchSummonerLeagueByEncId()
 await lolstats.fetchSummonerMatchListById(lolstats.summonerRegion, lolstats.profileData.puuid)
+await lolstats.findChampionStats()
+await lolstats.FindRecentlyPlayedWith()
 console.log('This is Summonername: ' + lolstats.summonerName)
 console.log('This is Summoner Region: ' + lolstats.summonerRegion)
 //console.log(lolstats.profileData)
@@ -15,63 +16,15 @@ console.log(lolstats.matchHistory.length)
 
 let soloRankStats = lolstats.soloRankStats
 let flexRankStats = lolstats.flexRankStats
-
-const FindRecentlyPlayedWith = async () => {
-  let i = 0
-  const playerCounter = {}
-  const playerList = []
-  const ChampList = []
-  while (i < lolstats.matchHistory.length) {
-    let p = 0
-    while (p < 10) {
-      playerList.push(lolstats.matchData[i].info.participants[p].summonerName)
-      if (lolstats.matchData[i].info.participants[p].summonerName === lolstats.profileData.name) {
-        ChampList.push(lolstats.matchData[i].info.participants[p].championName)
-      }
-      p++
-    }
-    i++
-  }
-  playerList.forEach(function (x) {
-    playerCounter[x] = (playerCounter[x] || 0) + 1
-  })
-
-  const recentlyCounted = [playerCounter]
-  const recentlyPlayedWith = [
-    {
-      name: String,
-      rank: String,
-      wins: Number,
-      losses: Number
-    }
-  ]
-  recentlyCounted.forEach((res) => {
-    Object.entries(res).forEach(([key, value]) => {
-      if (value > 4 && value != lolstats.matchHistory.length) {
-        recentlyPlayedWith.name = key
-      }
-    })
-  })
-
-  while (i < recentlyPlayedWith.length) {
-    i++
-  }
-  //console.log(playerCounter)
-  console.log(recentlyPlayedWith)
-  console.log(ChampList)
-}
-onMounted(async () => {
-  await FindRecentlyPlayedWith()
-  await setTimeout(() => {
-    console.log('Delayed for 1 second.')
-  }, '1000')
-})
 </script>
 
 <template>
   <div class="wrapper">
     <section class="championBanner">
-      <div class="splashOverlay"></div>
+      <div
+        class="splashOverlay"
+        :style="`background: url(src/assets/GameAssets/Splashes/${lolstats.championStats[0].championName}_0.jpg) no-repeat; background-size: cover`"
+      ></div>
       <div class="profileBanner">
         <div class="playerIcon">
           <img
@@ -168,49 +121,67 @@ onMounted(async () => {
               <p>Champion Stats</p>
             </div>
           </div>
-          <div class="leftTab leftTab--champion">
-            <img src="@/assets/GameAssets/champion/Cassiopeia.png" alt="" class="championThumb" />
+          <div
+            class="leftTab leftTab--champion"
+            v-for="champion in lolstats.championStats.slice(0, 5)"
+          >
+            <img
+              :src="`src/assets/GameAssets/champion/${champion.championName}.png`"
+              alt=""
+              class="championThumb"
+            />
             <div class="textwrap">
-              <p class="championName">Cassiopeia</p>
-              <p class="lpGain">27 LP</p>
+              <p class="championName">{{ champion.championName }}</p>
+              <p class="lpGain">
+                {{
+                  (champion.championStats.teamWin -
+                    (champion.championStats.gamePlayed - champion.championStats.teamWin)) *
+                    25 +
+                  ' LP'
+                }}
+              </p>
             </div>
             <div class="textwrap">
-              <p class="KDA">4.27 KDA</p>
-              <p class="fullKDA">4.2 / 1.7 / 3.5</p>
+              <p class="KDA">
+                {{
+                  Math.round(
+                    ((champion.championStats.kills + champion.championStats.assists) /
+                      champion.championStats.deaths) *
+                      10
+                  ) / 10
+                }}
+                KDA
+              </p>
+              <p class="fullKDA">
+                {{
+                  Math.round(
+                    (champion.championStats.kills / champion.championStats.gamePlayed) * 10
+                  ) / 10
+                }}
+                /
+                {{
+                  Math.round(
+                    (champion.championStats.deaths / champion.championStats.gamePlayed) * 10
+                  ) / 10
+                }}
+                /
+                {{
+                  Math.round(
+                    (champion.championStats.assists / champion.championStats.gamePlayed) * 10
+                  ) / 10
+                }}
+              </p>
             </div>
             <div class="textwrap">
-              <p class="winRateText">55%</p>
-              <p class="totalPlayed">14 Games</p>
-            </div>
-          </div>
-          <div class="leftTab leftTab--champion">
-            <img src="@/assets/GameAssets/champion/Cassiopeia.png" alt="" class="championThumb" />
-            <div class="textwrap">
-              <p class="championName">Cassiopeia</p>
-              <p class="lpGain">27 LP</p>
-            </div>
-            <div class="textwrap">
-              <p class="KDA">4.27 KDA</p>
-              <p class="fullKDA">4.2 / 1.7 / 3.5</p>
-            </div>
-            <div class="textwrap">
-              <p class="winRateText">55%</p>
-              <p class="totalPlayed">14 Games</p>
-            </div>
-          </div>
-          <div class="leftTab leftTab--champion">
-            <img src="@/assets/GameAssets/champion/Cassiopeia.png" alt="" class="championThumb" />
-            <div class="textwrap">
-              <p class="championName">Cassiopeia</p>
-              <p class="lpGain">27 LP</p>
-            </div>
-            <div class="textwrap">
-              <p class="KDA">4.27 KDA</p>
-              <p class="fullKDA">4.2 / 1.7 / 3.5</p>
-            </div>
-            <div class="textwrap">
-              <p class="winRateText">55%</p>
-              <p class="totalPlayed">14 Games</p>
+              <p class="winRateText">
+                {{
+                  Math.floor(
+                    (champion.championStats.teamWin / champion.championStats.gamePlayed) * 100
+                  )
+                }}
+                %
+              </p>
+              <p class="totalPlayed">{{ champion.championStats.gamePlayed }} Games</p>
             </div>
           </div>
         </div>
