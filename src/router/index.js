@@ -13,6 +13,11 @@ const router = createRouter({
       path: '/playerOverview',
       name: 'playerOverview',
       component: () => import('@/views/PlayerView.vue')
+    },
+    {
+      path: '/tierlist',
+      name: 'tierlist',
+      component: () => import('@/views/TierlistView.vue')
     }
   ]
 })

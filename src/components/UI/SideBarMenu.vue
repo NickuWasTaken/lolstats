@@ -1,7 +1,7 @@
 <template>
   <nav class="sidebar">
     <ul>
-      <router-link to="/playerOverview">
+      <router-link to="/tierlist">
         <li>
           <div class="thumb">
             <img src="@/assets/icons/tierlist-ico.png" alt="Tierlist Icon" />

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
+import { fakeMatchHistory } from '@/assets/StaticData/fakeMatchHistory.js'
 
 export const nunubot = defineStore('nunu', {
   state: () => ({
@@ -26,7 +27,10 @@ export const nunubot = defineStore('nunu', {
         wins: 0,
         losses: 0
       }
-    ]
+    ],
+    tierlistData: {
+      allGames: Number
+    }
   }),
   actions: {
     async fetchSummonerByName(region, name) {
@@ -133,7 +137,8 @@ export const nunubot = defineStore('nunu', {
               participant: p,
               mainRunes: this.matchData[i].info.participants[p].perks.styles[0].selections[0].perk,
               champions: championsInGame,
-              matchHistory: i
+              matchHistory: i,
+              id: this.matchData[i].metadata.matchId
             }
           }
           p++
@@ -251,7 +256,7 @@ export const nunubot = defineStore('nunu', {
         let participantValues = [this.profileData.puuid, this.recentlyPlayedWith[o].puuid]
         const games = this.matchData
         const results = games.map((game) => {
-          // Directly map participants, modifying only those of interest
+          // map participants, modifying only those of interest
           game.info.participants = game.info.participants.map((participant) => {
             if (participantValues.includes(participant.puuid)) {
               if (participant.summonerName != this.profileData.name) {
@@ -268,6 +273,98 @@ export const nunubot = defineStore('nunu', {
         })
         o++
       }*/
+    },
+
+    async createTierList(gameMode) {
+      let mergedChampions = {}
+      let gameCount = 0
+
+      fakeMatchHistory.forEach((game) => {
+        if (game.info.gameMode === gameMode) {
+          gameCount++
+          let team100Participants = game.info.participants.filter((p) => p.teamId === 100)
+          let team200Winners = game.info.participants
+            .filter((p) => p.teamId === 200 && p.win)
+            .map((p) => p.championName)
+          team100Participants.forEach((participant) => {
+            const {
+              championName,
+              kills,
+              deaths,
+              assists,
+              win,
+              magicDamageDealtToChampions,
+              physicalDamageDealtToChampions,
+              damageSelfMitigated,
+              totalHeal,
+              teamId
+            } = participant
+
+            if (!mergedChampions[championName]) {
+              mergedChampions[championName] = {
+                championName,
+                kills,
+                deaths,
+                assists,
+                magicDamageDealtToChampions,
+                physicalDamageDealtToChampions,
+                damageSelfMitigated,
+                totalHeal,
+                wins: 0,
+                gamesPlayed: 0,
+                lostToChampions: {} // Tracking champions that teamId 1 lost to
+              }
+            }
+
+            mergedChampions[championName].kills += kills
+            mergedChampions[championName].deaths += deaths
+            mergedChampions[championName].assists += assists
+            mergedChampions[championName].magicDamageDealtToChampions += magicDamageDealtToChampions
+            mergedChampions[championName].physicalDamageDealtToChampions +=
+              physicalDamageDealtToChampions
+            mergedChampions[championName].damageSelfMitigated += damageSelfMitigated
+            mergedChampions[championName].totalHeal += totalHeal
+            mergedChampions[championName].wins += win ? 1 : 0
+            mergedChampions[championName].gamesPlayed += 1
+
+            if (!win && team200Winners.length > 0) {
+              team200Winners.forEach((winnerChampionName) => {
+                if (mergedChampions[championName].lostToChampions[winnerChampionName]) {
+                  mergedChampions[championName].lostToChampions[winnerChampionName] += 1
+                } else {
+                  mergedChampions[championName].lostToChampions[winnerChampionName] = 1
+                }
+              })
+            }
+          })
+        }
+      })
+
+      // Sort lostToChampions for each champion
+      Object.values(mergedChampions).forEach((champion) => {
+        champion.lostToChampionsCount = Object.entries(champion.lostToChampions)
+          .map(([name, count]) => ({ name, count }))
+          .sort((a, b) => b.count - a.count)
+      })
+
+      const mergedArray = Object.values(mergedChampions)
+
+      // Sort mergedArray by win percentage, then by games played
+      mergedArray.sort((a, b) => {
+        const winPercentageA = (a.wins / a.gamesPlayed) * 100
+        const winPercentageB = (b.wins / b.gamesPlayed) * 100
+
+        if (winPercentageB === winPercentageA) {
+          return b.gamesPlayed - a.gamesPlayed
+        }
+        return winPercentageB - winPercentageA
+      })
+
+      console.log(mergedArray)
+      console.log(gameCount)
+
+      this.tierlistData = mergedArray
+      this.tierlistData.allGames = gameCount
     }
   },
   persist: true

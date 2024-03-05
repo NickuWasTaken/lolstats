@@ -1,70 +1,30 @@
 <script setup>
 const props = defineProps({
-  champions: {}
+  soloRankStats: {},
+  flexRankStats: {}
 })
 </script>
-
 <template>
-  <div class="championStatWrapper">
-    <div class="leftTab leftTab--championStats">
-      <div>
-        <hr />
-        <p>Champion Stats</p>
-      </div>
+  <div class="leftTab leftTab--solo">
+    <div>
+      <hr />
+      <p>Ranked Solo</p>
     </div>
-    <div class="leftTab leftTab--champion" v-for="champion in props.champions">
-      <img
-        :src="`src/assets/GameAssets/champion/${champion.championName}.png`"
-        alt=""
-        class="championThumb"
-      />
-      <div class="textwrap">
-        <p class="championName">{{ champion.championName }}</p>
-        <p class="lpGain">
-          {{
-            (champion.championStats.teamWin -
-              (champion.championStats.gamePlayed - champion.championStats.teamWin)) *
-              25 +
-            ' LP'
-          }}
-        </p>
-      </div>
-      <div class="textwrap">
-        <p class="KDA">
-          {{
-            Math.round(
-              ((champion.championStats.kills + champion.championStats.assists) /
-                champion.championStats.deaths) *
-                10
-            ) / 10
-          }}
-          KDA
-        </p>
-        <p class="fullKDA">
-          {{
-            Math.round((champion.championStats.kills / champion.championStats.gamePlayed) * 10) / 10
-          }}
-          /
-          {{
-            Math.round((champion.championStats.deaths / champion.championStats.gamePlayed) * 10) /
-            10
-          }}
-          /
-          {{
-            Math.round((champion.championStats.assists / champion.championStats.gamePlayed) * 10) /
-            10
-          }}
-        </p>
-      </div>
-      <div class="textwrap">
-        <p class="winRateText">
-          {{
-            Math.floor((champion.championStats.teamWin / champion.championStats.gamePlayed) * 100)
-          }}
-          %
-        </p>
-        <p class="totalPlayed">{{ champion.championStats.gamePlayed }} Games</p>
-      </div>
+    <div>
+      <img src="" alt="" />
+      <p style="text-transform: capitalize">
+        {{ props.soloRankStats.tier + ' ' + props.soloRankStats.rank }}
+      </p>
+    </div>
+  </div>
+  <div class="leftTab leftTab--flex">
+    <div>
+      <hr />
+      <p>Ranked Flex</p>
+    </div>
+    <div>
+      <img src="" alt="" />
+      <p>{{ props.flexRankStats.tier + ' ' + props.flexRankStats.rank }}</p>
     </div>
   </div>
 </template>
@@ -225,6 +185,18 @@ const props = defineProps({
 
   .premadeRatio {
     width: 50px;
+  }
+}
+
+.contentWrapperLeft {
+  width: 310px;
+
+  > * {
+    background-color: #000;
+    padding: 15px;
+    border-radius: 8px;
+    border: solid 1px rgba($color: #707070, $alpha: 0.5);
+    margin-bottom: 7px;
   }
 }
 </style>
