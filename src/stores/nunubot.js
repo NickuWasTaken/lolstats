@@ -83,7 +83,7 @@ export const nunubot = defineStore('nunu', {
           region +
           `.api.riotgames.com/lol/match/v5/matches/by-puuid/` +
           id +
-          '/ids?1673481600&count=24&api_key=' +
+          '/ids?1673481600&count=25&api_key=' +
           import.meta.env.VITE_RGAPI
       )
       this.matchHistory = response.data
@@ -288,22 +288,33 @@ export const nunubot = defineStore('nunu', {
           let team200Winners = game.info.participants
             .filter((p) => p.teamId === 200 && p.win)
             .map((p) => p.championName)
-          
-          
-            team100Participants.forEach((participant) => {
+          team100Participants.forEach((participant) => {
             const {
               championName,
               kills,
-              teamId,
-              ...
+              deaths,
+              assists,
+              win,
+              magicDamageDealtToChampions,
+              physicalDamageDealtToChampions,
+              damageSelfMitigated,
+              totalHeal,
+              teamId
             } = participant
 
             if (!mergedChampions[championName]) {
               mergedChampions[championName] = {
                 championName,
                 kills,
-                lostToChampions: {},
-                ...
+                deaths,
+                assists,
+                magicDamageDealtToChampions,
+                physicalDamageDealtToChampions,
+                damageSelfMitigated,
+                totalHeal,
+                wins: 0,
+                gamesPlayed: 0,
+                lostToChampions: {} // Tracking champions that teamId 1 lost to
               }
             }
 
@@ -331,7 +342,7 @@ export const nunubot = defineStore('nunu', {
         }
       })
 
-      // Sortere lostToChampions for hver champion
+      // Sort lostToChampions for each champion
       Object.values(mergedChampions).forEach((champion) => {
         champion.lostToChampionsCount = Object.entries(champion.lostToChampions)
           .map(([name, count]) => ({ name, count }))
