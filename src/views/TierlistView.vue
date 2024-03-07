@@ -4,7 +4,7 @@ import { ref, reactive } from 'vue'
 
 const lolstats = nunubot()
 
-let SelectedGameMode = 'ARAM'
+let SelectedGameMode = 'CLASSIC'
 ref(SelectedGameMode)
 var ChampionRank = 1
 

@@ -83,7 +83,7 @@ export const nunubot = defineStore('nunu', {
           region +
           `.api.riotgames.com/lol/match/v5/matches/by-puuid/` +
           id +
-          '/ids?1673481600&count=25&api_key=' +
+          '/ids?1673481600&count=24&api_key=' +
           import.meta.env.VITE_RGAPI
       )
       this.matchHistory = response.data
@@ -91,6 +91,11 @@ export const nunubot = defineStore('nunu', {
       let i = 0
       while (i < this.matchHistory.length) {
         const currentMatch = this.matchHistory[i]
+        if (i % 15 == 1) {
+          setTimeout(function () {
+            console.log('Waiting for cooldowns')
+          }, 1500)
+        }
         await this.fetchMatchDataById(region, currentMatch)
         let p = 0
         var championsInGame = []
@@ -146,12 +151,9 @@ export const nunubot = defineStore('nunu', {
         this.matchInfo.matchHistory = i
         await this.matchInfo.push(obj)
         i++
-        if (i % 15 == 1) {
-          setTimeout(function () {
-            console.log('Waiting for cooldowns')
-          }, 3000)
-        } // RGAPI tillader kun 20 kald per second men, da der  foretages også andre kald så
-      } //  der ventes 1sek efter 15 kald, for at være sikker på ikke at blive midlertidigt udelukket
+      } // RGAPI tillader kun 20 kald per second men, da der  foretages også andre kald så
+      //  der ventes 1sek efter 15 kald, for at være sikker på ikke at blive midlertidigt udelukket
+      console.log(JSON.stringify(this.matchData))
     }, // Sample søgenavn: g0dfr0mth3s34, Nicku
     async fetchMatchDataById(region, matchId) {
       let response = await axios.get(
@@ -286,33 +288,22 @@ export const nunubot = defineStore('nunu', {
           let team200Winners = game.info.participants
             .filter((p) => p.teamId === 200 && p.win)
             .map((p) => p.championName)
-          team100Participants.forEach((participant) => {
+          
+          
+            team100Participants.forEach((participant) => {
             const {
               championName,
               kills,
-              deaths,
-              assists,
-              win,
-              magicDamageDealtToChampions,
-              physicalDamageDealtToChampions,
-              damageSelfMitigated,
-              totalHeal,
-              teamId
+              teamId,
+              ...
             } = participant
 
             if (!mergedChampions[championName]) {
               mergedChampions[championName] = {
                 championName,
                 kills,
-                deaths,
-                assists,
-                magicDamageDealtToChampions,
-                physicalDamageDealtToChampions,
-                damageSelfMitigated,
-                totalHeal,
-                wins: 0,
-                gamesPlayed: 0,
-                lostToChampions: {} // Tracking champions that teamId 1 lost to
+                lostToChampions: {},
+                ...
               }
             }
 
@@ -340,7 +331,7 @@ export const nunubot = defineStore('nunu', {
         }
       })
 
-      // Sort lostToChampions for each champion
+      // Sortere lostToChampions for hver champion
       Object.values(mergedChampions).forEach((champion) => {
         champion.lostToChampionsCount = Object.entries(champion.lostToChampions)
           .map(([name, count]) => ({ name, count }))
