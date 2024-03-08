@@ -15,7 +15,7 @@
 
 ## Key Features
 
-* Player search
+* Player search (Suggested search terms: "Scissoring Gwen", "Nicku")
 * Champion statistics and tierlists
 * Player match history and performance statistics
 
@@ -37,7 +37,8 @@ $ npm install
 # Run the app
 $ npm run dev
 ```
-
+## Disclaimer
+Some image links may be broken as riot has yet to upload the newest data dragon asset pack.
 
 ## Credits
 
