@@ -1,5 +1,6 @@
 <script setup>
 import { nunubot } from '@/stores/nunubot'
+import { reactive } from 'vue'
 import PlayerMatchList from '@/components/elements/PlayerMatchList.vue'
 import PlayerFilters from '@/components/interactables/Playerfilters.vue'
 import PlayerChampionBanner from '@/components/elements/PlayerChampionBanner.vue'
@@ -12,6 +13,7 @@ await lolstats.fetchSummonerLeagueByEncId()
 await lolstats.fetchSummonerMatchListById(lolstats.summonerRegion, lolstats.profileData.puuid)
 await lolstats.findChampionStats()
 await lolstats.FindRecentlyPlayedWith()
+reactive(lolstats.matchData)
 console.log(lolstats.matchData)
 console.log(lolstats.matchHistory.length)
 

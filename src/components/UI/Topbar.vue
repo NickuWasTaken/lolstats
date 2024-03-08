@@ -7,7 +7,7 @@ import SearchBar from '@/components/interactables/SearchBar.vue'
     <div class="logo">
       <router-link to="/"> <img src="@/assets/images/logo.png" alt="" /> </router-link>
     </div>
-    <div class="topSearch"><SearchBar /></div>
+    <div class="topSearch"><SearchBar @re-render="$emit('reRender')" /></div>
     <div class="login">Log in</div>
   </header>
 </template>

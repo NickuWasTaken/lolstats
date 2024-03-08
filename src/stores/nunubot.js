@@ -42,6 +42,9 @@ export const nunubot = defineStore('nunu', {
           '?api_key=' +
           import.meta.env.VITE_RGAPI
       )
+      this.matchInfo = []
+      this.matchData = []
+      this.championStats = []
       this.profileData = response.data
     },
 
@@ -60,8 +63,10 @@ export const nunubot = defineStore('nunu', {
       if (response.data[0].queueType == 'RANKED_FLEX_SR') {
         this.flexRankStats = response.data[0]
         this.soloRankStats = response.data[1]
-      } else {
+        console.log()
+      } else if (response.data[0].queueType == 'RANKED_SOLO_5x5') {
         this.soloRankStats = response.data[0]
+        console.log(this.soloRankStats)
       }
     },
 
@@ -83,7 +88,7 @@ export const nunubot = defineStore('nunu', {
           region +
           `.api.riotgames.com/lol/match/v5/matches/by-puuid/` +
           id +
-          '/ids?1673481600&count=25&api_key=' +
+          '/ids?1673481600&count=15&api_key=' +
           import.meta.env.VITE_RGAPI
       )
       this.matchHistory = response.data
@@ -284,10 +289,17 @@ export const nunubot = defineStore('nunu', {
       fakeMatchHistory.forEach((game) => {
         if (game.info.gameMode === gameMode) {
           gameCount++
-          let team100Participants = game.info.participants.filter((p) => p.teamId === 100)
+          let team100Participants = game.info.participants.filter(
+            (p) => p.teamId === 100 || p.teamId === 200
+          )
           let team200Winners = game.info.participants
             .filter((p) => p.teamId === 200 && p.win)
             .map((p) => p.championName)
+
+          let team100Winners = game.info.participants
+            .filter((p) => p.teamId === 100 && p.win)
+            .map((p) => p.championName)
+
           team100Participants.forEach((participant) => {
             const {
               championName,
@@ -299,11 +311,14 @@ export const nunubot = defineStore('nunu', {
               physicalDamageDealtToChampions,
               damageSelfMitigated,
               totalHeal,
-              teamId
+              teamId,
+              teamPosition,
+              rank
             } = participant
 
-            if (!mergedChampions[championName]) {
-              mergedChampions[championName] = {
+            const championKey = `${championName}_${teamPosition}`
+            if (!mergedChampions[championKey]) {
+              mergedChampions[championKey] = {
                 championName,
                 kills,
                 deaths,
@@ -314,27 +329,38 @@ export const nunubot = defineStore('nunu', {
                 totalHeal,
                 wins: 0,
                 gamesPlayed: 0,
+                rank,
+                teamPosition,
                 lostToChampions: {} // Tracking champions that teamId 1 lost to
               }
             }
 
-            mergedChampions[championName].kills += kills
-            mergedChampions[championName].deaths += deaths
-            mergedChampions[championName].assists += assists
-            mergedChampions[championName].magicDamageDealtToChampions += magicDamageDealtToChampions
-            mergedChampions[championName].physicalDamageDealtToChampions +=
+            mergedChampions[championKey].kills += kills
+            mergedChampions[championKey].deaths += deaths
+            mergedChampions[championKey].assists += assists
+            mergedChampions[championKey].magicDamageDealtToChampions += magicDamageDealtToChampions
+            mergedChampions[championKey].physicalDamageDealtToChampions +=
               physicalDamageDealtToChampions
-            mergedChampions[championName].damageSelfMitigated += damageSelfMitigated
-            mergedChampions[championName].totalHeal += totalHeal
-            mergedChampions[championName].wins += win ? 1 : 0
-            mergedChampions[championName].gamesPlayed += 1
+            mergedChampions[championKey].damageSelfMitigated += damageSelfMitigated
+            mergedChampions[championKey].totalHeal += totalHeal
+            mergedChampions[championKey].wins += win ? 1 : 0
+            mergedChampions[championKey].gamesPlayed += 1
 
             if (!win && team200Winners.length > 0) {
               team200Winners.forEach((winnerChampionName) => {
-                if (mergedChampions[championName].lostToChampions[winnerChampionName]) {
-                  mergedChampions[championName].lostToChampions[winnerChampionName] += 1
+                if (mergedChampions[championKey].lostToChampions[winnerChampionName]) {
+                  mergedChampions[championKey].lostToChampions[winnerChampionName] += 1
                 } else {
-                  mergedChampions[championName].lostToChampions[winnerChampionName] = 1
+                  mergedChampions[championKey].lostToChampions[winnerChampionName] = 1
+                }
+              })
+            }
+            if (!win && team100Winners.length > 0) {
+              team100Winners.forEach((winnerChampionName) => {
+                if (mergedChampions[championKey].lostToChampions[winnerChampionName]) {
+                  mergedChampions[championKey].lostToChampions[winnerChampionName] += 1
+                } else {
+                  mergedChampions[championKey].lostToChampions[winnerChampionName] = 1
                 }
               })
             }
@@ -360,6 +386,12 @@ export const nunubot = defineStore('nunu', {
           return b.gamesPlayed - a.gamesPlayed
         }
         return winPercentageB - winPercentageA
+      })
+
+      let RankCount = 1
+      mergedArray.forEach((champion) => {
+        champion.rank = RankCount
+        RankCount++
       })
 
       console.log(mergedArray)

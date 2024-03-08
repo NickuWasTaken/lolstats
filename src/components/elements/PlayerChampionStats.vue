@@ -2,6 +2,13 @@
 const props = defineProps({
   champions: {}
 })
+
+function checkChampionName(championName) {
+  if (championName == 'AurelionSol') {
+    championName = 'A. Sol'
+  }
+  return championName
+}
 </script>
 
 <template>
@@ -19,7 +26,7 @@ const props = defineProps({
         class="championThumb"
       />
       <div class="textwrap">
-        <p class="championName">{{ champion.championName }}</p>
+        <p class="championName">{{ checkChampionName(champion.championName) }}</p>
         <p class="lpGain">
           {{
             (champion.championStats.teamWin -
@@ -111,7 +118,7 @@ const props = defineProps({
 
   &--champion:nth-child(odd),
   &--premade:nth-child(odd) {
-    background-color: rgba($color: white, $alpha: 0.1);
+    background-color: rgba($color: white, $alpha: 0.14);
   }
 
   &--champion:nth-child(0) {
@@ -125,7 +132,7 @@ const props = defineProps({
     width: 100%;
     display: flex;
     align-items: center;
-    padding: 10px 10px 10px 15px;
+    padding: 10px 5px 10px 5px;
 
     > * {
       margin: 0;
@@ -167,6 +174,16 @@ const props = defineProps({
       line-height: 1.5;
       color: white;
       margin-top: -3px;
+    }
+
+    .championName {
+      width: 65px;
+      margin-right: 0;
+    }
+
+    .fullKDA {
+      width: 85px;
+      text-align: center !important;
     }
 
     .lpGain,

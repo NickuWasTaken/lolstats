@@ -3,18 +3,21 @@ import { nunubot } from '@/stores/nunubot'
 import { ref, reactive } from 'vue'
 
 const lolstats = nunubot()
-
-let SelectedGameMode = 'CLASSIC'
-ref(SelectedGameMode)
-var ChampionRank = 1
+let activeTab = ref('1')
+let SelectedGameMode = ref('ARAM')
+reactive(lolstats)
 
 const getTopCounters = (lostToChampionsCount) => {
   return lostToChampionsCount.slice(0, 5)
 }
 
-const addToChampionRank = () => {
-  return ChampionRank++
+const changeTab = async (tabNr, gameMode) => {
+  activeTab.value = tabNr
+  SelectedGameMode.value = gameMode
+  await lolstats.createTierList(SelectedGameMode.value)
+  console.log(activeTab.value, SelectedGameMode.value)
 }
+
 const getTier = (wins, games) => {
   let tier
   if ((wins / games) * 100 > 56) {
@@ -35,7 +38,7 @@ const getTier = (wins, games) => {
   return tier
 }
 
-await lolstats.createTierList(SelectedGameMode)
+await lolstats.createTierList(SelectedGameMode.value)
 </script>
 
 <template>
@@ -49,26 +52,26 @@ await lolstats.createTierList(SelectedGameMode)
             {{ lolstats.tierlistData.allGames }}
           </h4>
         </header>
-        <ul class="listMenu">
-          <li>
+        <ul class="listMenu" :key="activeTab">
+          <li :class="{ active: activeTab === '1' }" @click="changeTab('1', 'CLASSIC')">
             5v5 Tierlist <br />
             <div class="underlined" />
           </li>
-          <li>
+          <li :class="{ active: activeTab == 2 }" @click="changeTab('2', 'ARAM')">
             ARAM Tierlist <br />
-            <div class="underlined--disabled" />
+            <div class="underlined" />
           </li>
-          <li>
+          <li :class="{ active: activeTab == 3 }" @click="changeTab('3', 'CLASSIC')">
             DUO Tierlist <br />
-            <div class="underlined--disabled" />
+            <div class="underlined" />
           </li>
-          <li>
+          <li :class="{ active: activeTab == 4 }" @click="changeTab('4', 'CLASSIC')">
             Pro Tierlist <br />
-            <div class="underlined--disabled" />
+            <div class="underlined" />
           </li>
-          <li>
+          <li :class="{ active: activeTab == 5 }" @click="changeTab('5', 'CLASSIC')">
             Combat Stats <br />
-            <div class="underlined--disabled" />
+            <div class="underlined" />
           </li>
         </ul>
         <header class="overviewFilters">
@@ -78,12 +81,12 @@ await lolstats.createTierList(SelectedGameMode)
               <p>Filters:</p>
             </div>
             <ul class="filterWidget">
-              <li class="active"><img src="@/assets/icons/laneIco/all.png" alt="" /></li>
-              <li><img src="@/assets/icons/laneIco/top.png" alt="" /></li>
-              <li><img src="@/assets/icons/laneIco/jngl.png" alt="" /></li>
-              <li><img src="@/assets/icons/laneIco/midlane.png" alt="" /></li>
-              <li><img src="@/assets/icons/laneIco/bot.png" alt="" /></li>
-              <li><img src="@/assets/icons/laneIco/support.png" alt="" /></li>
+              <li class="active"><img src="@/assets/icons/laneIco/NONE.png" alt="" /></li>
+              <li><img src="@/assets/icons/laneIco/TOP.png" alt="" /></li>
+              <li><img src="@/assets/icons/laneIco/JUNGLE.png" alt="" /></li>
+              <li><img src="@/assets/icons/laneIco/MIDDLE.png" alt="" /></li>
+              <li><img src="@/assets/icons/laneIco/BOTTOM.png" alt="" /></li>
+              <li><img src="@/assets/icons/laneIco/UTILITY.png" alt="" /></li>
             </ul>
             <div class="filterTab fc">
               <p>All Ranks</p>
@@ -101,7 +104,7 @@ await lolstats.createTierList(SelectedGameMode)
         </header>
       </div>
 
-      <section class="tierlistWrapper">
+      <section class="tierlistWrapper" v-if="activeTab < 5">
         <div class="tierlistTitles df jfsb">
           <p class="rank">Rank</p>
           <p class="role">Role</p>
@@ -116,8 +119,14 @@ await lolstats.createTierList(SelectedGameMode)
         </div>
         <div class="tierlistContent">
           <div class="tierEntry" v-for="(champion, index) in lolstats.tierlistData" :key="index">
-            <p class="rank">{{ (ChampionRank, addToChampionRank()) }}</p>
-            <p class="role"><img src="@/assets/icons/laneIco/all.png" alt="" class="thumb" /></p>
+            <p class="rank">{{ champion.rank }}</p>
+            <p class="role">
+              <img
+                :src="`src/assets/icons/laneIco/${champion.teamPosition}.png`"
+                alt=""
+                class="thumb"
+              />
+            </p>
             <div class="champion">
               <img
                 :src="`src/assets/GameAssets/champion/${champion.championName}.png`"
@@ -140,6 +149,7 @@ await lolstats.createTierList(SelectedGameMode)
             <p class="ban">3,1 %</p>
             <div class="counter">
               <div v-for="counter in getTopCounters(champion.lostToChampionsCount)">
+                {{ console.log(counter.name) }}
                 <img
                   :src="`src/assets/GameAssets/champion/${counter.name}.png`"
                   alt=""
@@ -147,6 +157,72 @@ await lolstats.createTierList(SelectedGameMode)
                 />
               </div>
             </div>
+            <p class="games">
+              {{ champion.gamesPlayed }}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="tierlistWrapper" v-if="activeTab == 5">
+        <div class="tierlistTitles df jfsb">
+          <p class="rank">Rank</p>
+          <p class="role">Role</p>
+          <p class="champion">Champion</p>
+          <p class="winrate">Winrate%</p>
+          <p class="kills">Kills</p>
+          <p class="deaths">Deaths</p>
+          <p class="assists">Assists</p>
+          <p class="damage">Damage</p>
+          <p class="damMiti">Damage Mitigate</p>
+          <p class="heals">Heals</p>
+          <p class="games">Games</p>
+        </div>
+        <div class="tierlistContent">
+          <div class="tierEntry" v-for="(champion, index) in lolstats.tierlistData" :key="index">
+            <p class="rank">{{ champion.rank }}</p>
+            <p class="role">
+              <img
+                :src="`src/assets/icons/laneIco/${champion.teamPosition}.png`"
+                alt=""
+                class="thumb"
+              />
+            </p>
+            <div class="champion">
+              <img
+                :src="`src/assets/GameAssets/champion/${champion.championName}.png`"
+                alt=""
+                class="champThumb"
+              />
+              <p>{{ champion.championName }}</p>
+            </div>
+            <p class="winrate">
+              {{ Math.round((champion.wins / champion.gamesPlayed) * 100 * 10) / 10 }} %
+            </p>
+            <p class="kills">{{ Math.round((champion.kills / champion.gamesPlayed) * 10) / 10 }}</p>
+            <p class="deaths">
+              {{ Math.round((champion.deaths / champion.gamesPlayed) * 10) / 10 }}
+            </p>
+            <p class="assists">
+              {{ Math.round((champion.assists / champion.gamesPlayed) * 10) / 10 }}
+            </p>
+            <p class="damage">
+              {{
+                Math.round(
+                  ((champion.physicalDamageDealtToChampions +
+                    champion.magicDamageDealtToChampions) /
+                    champion.gamesPlayed) *
+                    10
+                ) / 10
+              }}
+            </p>
+            <p class="damMiti">
+              {{ Math.round((champion.damageSelfMitigated / champion.gamesPlayed) * 10) / 10 }}
+            </p>
+            <p class="heals">
+              {{ Math.round((champion.totalHeal / champion.gamesPlayed) * 10) / 10 }}
+            </p>
+
             <p class="games">
               {{ champion.gamesPlayed }}
             </p>
@@ -274,6 +350,16 @@ await lolstats.createTierList(SelectedGameMode)
     font-family: 'segoe UI';
     color: white;
     margin-right: 20px;
+
+    .underlined {
+      display: block;
+      width: 85%;
+      margin: auto;
+      border-radius: 5px;
+      height: 3px;
+    }
+  }
+  .active {
     .underlined {
       display: block;
       width: 85%;
@@ -281,14 +367,6 @@ await lolstats.createTierList(SelectedGameMode)
       border-radius: 5px;
       height: 3px;
       background-color: #bca300;
-    }
-
-    .underlined--disabled {
-      display: block;
-      width: 85%;
-      margin: auto;
-      border-radius: 5px;
-      height: 3px;
     }
   }
 }
@@ -328,6 +406,24 @@ await lolstats.createTierList(SelectedGameMode)
   }
   .pick,
   .ban {
+    width: 65px;
+  }
+
+  .kills,
+  .deaths,
+  .assists {
+    width: 50px;
+  }
+
+  .damMiti {
+    width: 123px;
+  }
+
+  .damage {
+    width: 60px;
+  }
+
+  .heals {
     width: 65px;
   }
 

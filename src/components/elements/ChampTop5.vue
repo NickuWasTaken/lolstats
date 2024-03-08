@@ -7,12 +7,12 @@
           <p>Filters:</p>
         </div>
         <ul class="filterWidget">
-          <li class="active"><img src="@/assets/icons/laneIco/all.png" alt="" /></li>
-          <li><img src="@/assets/icons/laneIco/top.png" alt="" /></li>
-          <li><img src="@/assets/icons/laneIco/jngl.png" alt="" /></li>
-          <li><img src="@/assets/icons/laneIco/midlane.png" alt="" /></li>
-          <li><img src="@/assets/icons/laneIco/bot.png" alt="" /></li>
-          <li><img src="@/assets/icons/laneIco/support.png" alt="" /></li>
+          <li class="active"><img src="@/assets/icons/laneIco/NONE.png" alt="" /></li>
+          <li><img src="@/assets/icons/laneIco/TOP.png" alt="" /></li>
+          <li><img src="@/assets/icons/laneIco/JUNGLE.png" alt="" /></li>
+          <li><img src="@/assets/icons/laneIco/MIDDLE.png" alt="" /></li>
+          <li><img src="@/assets/icons/laneIco/BOTTOM.png" alt="" /></li>
+          <li><img src="@/assets/icons/laneIco/UTILITY.png" alt="" /></li>
         </ul>
         <div class="rankWrapper">
           <img src="@/assets/GameAssets/ranks/5.png" class="rankThumb" />
@@ -33,7 +33,7 @@
           <p>{{ index }}</p>
         </div>
         <div class="championRole">
-          <img src="@/assets/icons/laneIco/midlane.png" alt="" class="laneThumb" />
+          <img src="@/assets/icons/laneIco/MIDDLE.png" alt="" class="laneThumb" />
         </div>
         <div class="championName">
           <img src="@/assets/GameAssets/champion/Cassiopeia.png" class="championThumb" alt="" />

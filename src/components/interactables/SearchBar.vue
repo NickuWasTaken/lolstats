@@ -21,7 +21,9 @@ const findSummonerByName = (findSummoner, findSummonerRegion) => {
     v-model="findSummoner"
     type="text"
     placeholder="Search a champion or summoner..."
-    v-on:keyup.enter="findSummonerByName(this.findSummoner, this.findSummonerRegion)"
+    v-on:keyup.enter="
+      findSummonerByName(this.findSummoner, this.findSummonerRegion), $emit('reRender')
+    "
   />
   <select class="search__region" v-model="findSummonerRegion">
     <option value="EUW1">EUW</option>
