@@ -29,7 +29,7 @@ To clone and run this application, you'll need [Git](https://git-scm.com) and [N
 $ git clone https://github.com//NickuWasTaken/lolstats.git
 
 # Go into the repository
-$ cd Nordbo-robotics 
+$ cd lolstats
 
 # Install dependencies
 $ npm install
