@@ -1,10 +1,28 @@
 <script setup>
 const props = defineProps({
-  champions: {}
+  champions: {},
+  activeRole: String,
+  championKey: String
 })
 
 const getTopCounters = (lostToChampionsCount) => {
   return lostToChampionsCount.slice(0, 5)
+}
+
+const filteredChampions = () => {
+  // If searchQuery is empty, return the full list
+  if (!props.championKey.trim()) {
+    return props.champions
+  }
+
+  // Filter champions based on the search query
+  return props.champions.filter((champion) =>
+    champion.championName.toLowerCase().includes(props.championKey.toLowerCase())
+  )
+}
+
+const isOdd = (index) => {
+  return index % 2 === 0 // Remember, arrays are zero-indexed but :nth-child is 1-indexed
 }
 
 const getTier = (wins, games) => {
@@ -43,45 +61,51 @@ const getTier = (wins, games) => {
       <p class="games">Games</p>
     </div>
     <div class="tierlistContent">
-      <div class="tierEntry" v-for="(champion, index) in props.champions" :key="index">
-        <p class="rank">{{ champion.rank }}</p>
-        <p class="role">
-          <img
-            :src="`src/assets/icons/laneIco/${champion.teamPosition}.png`"
-            alt=""
-            class="thumb"
-          />
-        </p>
-        <div class="champion">
-          <img
-            :src="`src/assets/GameAssets/champion/${champion.championName}.png`"
-            alt=""
-            class="champThumb"
-          />
-          <p>{{ champion.championName }}</p>
-        </div>
-        <p class="tier">{{ getTier(champion.wins, champion.gamesPlayed) }}</p>
-        <p class="winrate">
-          {{ Math.round((champion.wins / champion.gamesPlayed) * 100 * 10) / 10 }} %
-        </p>
-        <p class="popularity">5,1%</p>
-        <p class="pick">
-          {{ Math.floor((champion.gamesPlayed / props.champions.allGames) * 100 * 10) / 10 }}
-          %
-        </p>
-        <p class="ban">3,1 %</p>
-        <div class="counter">
-          <div v-for="counter in getTopCounters(champion.lostToChampionsCount)">
+      <div v-for="(champion, index) in filteredChampions()" :key="index">
+        <div
+          class="tierEntry"
+          :class="{ oddRows: isOdd(index) }"
+          v-if="champion.teamPosition == props.activeRole || props.activeRole == 'NONE'"
+        >
+          <p class="rank">{{ champion.rank }}</p>
+          <p class="role">
             <img
-              :src="`src/assets/GameAssets/champion/${counter.name}.png`"
+              :src="`src/assets/icons/laneIco/${champion.teamPosition}.png`"
               alt=""
-              class="champThumb--small"
+              class="thumb"
             />
+          </p>
+          <div class="champion">
+            <img
+              :src="`src/assets/GameAssets/champion/${champion.championName}.png`"
+              alt=""
+              class="champThumb"
+            />
+            <p>{{ champion.championName }}</p>
           </div>
+          <p class="tier">{{ getTier(champion.wins, champion.gamesPlayed) }}</p>
+          <p class="winrate">
+            {{ Math.round((champion.wins / champion.gamesPlayed) * 100 * 10) / 10 }} %
+          </p>
+          <p class="popularity">5,1%</p>
+          <p class="pick">
+            {{ Math.floor((champion.gamesPlayed / props.champions.allGames) * 100 * 10) / 10 }}
+            %
+          </p>
+          <p class="ban">3,1 %</p>
+          <div class="counter">
+            <div v-for="counter in getTopCounters(champion.lostToChampionsCount)">
+              <img
+                :src="`src/assets/GameAssets/champion/${counter.name}.png`"
+                alt=""
+                class="champThumb--small"
+              />
+            </div>
+          </div>
+          <p class="games">
+            {{ champion.gamesPlayed }}
+          </p>
         </div>
-        <p class="games">
-          {{ champion.gamesPlayed }}
-        </p>
       </div>
     </div>
   </section>
@@ -196,10 +220,10 @@ const getTier = (wins, games) => {
     }
   }
 
-  .tierEntry:nth-child(odd) {
+  .tableColourer:nth-of-type(odd) {
     background-color: #1c1c1c;
   }
-  .tierEntry:nth-child(even) {
+  .oddRows {
     background-color: rgba(255, 255, 255, 0.07);
   }
 }

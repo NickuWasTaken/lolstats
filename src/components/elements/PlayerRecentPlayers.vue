@@ -2,6 +2,8 @@
 const props = defineProps({
   recentlyPlayedWith: {}
 })
+
+console.log(props.recentlyPlayedWith)
 </script>
 
 <template>

@@ -1,12 +1,45 @@
 <script setup>
+import { ref, watch, computed } from 'vue'
+
 const props = defineProps({
   match: {},
-  matchData: {}
+  matchData: {},
+  championKey: String,
+  filterRoles: String,
+  playerKey: String
 })
+
+const championQuery = ref(props.championKey)
+const selectedRole = ref(props.filterRoles)
+
+// Watch for prop changes and update local state
+watch(
+  () => props.championKey,
+  (newValue) => {
+    championQuery.value = newValue
+  }
+)
+
+watch(
+  () => props.filterRoles,
+  (newValue) => {
+    selectedRole.value = newValue
+    console.log(selectedRole.value, props.match.role)
+  }
+)
+
+const matchesCondition = computed(() => {
+  return (
+    (selectedRole.value === props.match.role || selectedRole.value == 'NONE') &&
+    (championQuery.value === '' ||
+      props.match.championName.toLowerCase().includes(championQuery.value.toLowerCase()))
+  )
+})
+
 </script>
 
 <template>
-  <div class="matchHistory--match">
+  <div class="matchHistory--match" v-if="matchesCondition">
     <div class="champSpellWrapper">
       <img
         :src="`src/assets/GameAssets/champion/${props.match.championName}.png`"

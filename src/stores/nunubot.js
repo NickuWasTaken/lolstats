@@ -135,6 +135,7 @@ export const nunubot = defineStore('nunu', {
               deaths: this.matchData[i].info.participants[p].deaths,
               kills: this.matchData[i].info.participants[p].kills,
               assists: this.matchData[i].info.participants[p].assists,
+              role: this.matchData[i].info.participants[p].teamPosition,
               gameType: MapType,
               summonerSpell1: this.matchData[i].info.participants[p].summoner1Id,
               summonerSpell2: this.matchData[i].info.participants[p].summoner2Id,

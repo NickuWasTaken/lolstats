@@ -6,6 +6,8 @@ import ChampionTierlistStats from '@/components/elements/ChampionTierlistStats.v
 
 const lolstats = nunubot()
 let activeTab = ref('1')
+let activeRole = ref('NONE')
+let championKey = ref('')
 let SelectedGameMode = ref('CLASSIC')
 reactive(lolstats)
 
@@ -13,6 +15,10 @@ const changeTab = async (tabNr, gameMode) => {
   activeTab.value = tabNr
   SelectedGameMode.value = gameMode
   await lolstats.createTierList(SelectedGameMode.value)
+}
+
+const changeRole = async (roleNr) => {
+  activeRole.value = roleNr
 }
 
 await lolstats.createTierList(SelectedGameMode.value)
@@ -58,12 +64,24 @@ await lolstats.createTierList(SelectedGameMode.value)
               <p>Filters:</p>
             </div>
             <ul class="filterWidget">
-              <li class="active"><img src="@/assets/icons/laneIco/NONE.png" alt="" /></li>
-              <li><img src="@/assets/icons/laneIco/TOP.png" alt="" /></li>
-              <li><img src="@/assets/icons/laneIco/JUNGLE.png" alt="" /></li>
-              <li><img src="@/assets/icons/laneIco/MIDDLE.png" alt="" /></li>
-              <li><img src="@/assets/icons/laneIco/BOTTOM.png" alt="" /></li>
-              <li><img src="@/assets/icons/laneIco/UTILITY.png" alt="" /></li>
+              <li :class="{ active: activeRole == 'NONE' }" @click="changeRole('NONE')">
+                <img src="@/assets/icons/laneIco/NONE.png" alt="" />
+              </li>
+              <li :class="{ active: activeRole == 'TOP' }" @click="changeRole('TOP')">
+                <img src="@/assets/icons/laneIco/TOP.png" alt="" />
+              </li>
+              <li :class="{ active: activeRole == 'JUNGLE' }" @click="changeRole('JUNGLE')">
+                <img src="@/assets/icons/laneIco/JUNGLE.png" alt="" />
+              </li>
+              <li :class="{ active: activeRole == 'MIDDLE' }" @click="changeRole('MIDDLE')">
+                <img src="@/assets/icons/laneIco/MIDDLE.png" alt="" />
+              </li>
+              <li :class="{ active: activeRole == 'BOTTOM' }" @click="changeRole('BOTTOM')">
+                <img src="@/assets/icons/laneIco/BOTTOM.png" alt="" />
+              </li>
+              <li :class="{ active: activeRole == 'UTILITY' }" @click="changeRole('UTILLITY')">
+                <img src="@/assets/icons/laneIco/UTILITY.png" alt="" />
+              </li>
             </ul>
             <div class="filterTab fc">
               <p>All Ranks</p>
@@ -77,11 +95,22 @@ await lolstats.createTierList(SelectedGameMode.value)
             <div class="filterTab fc">
               <p>World</p>
             </div>
+            <input
+              type="text"
+              class="filterTab filterTab--search"
+              v-model="championKey"
+              placeholder="Search Champion..."
+            />
           </div>
         </header>
       </div>
 
-      <ChampionTierlist :champions="lolstats.tierlistData" v-if="activeTab < 4" />
+      <ChampionTierlist
+        :champions="lolstats.tierlistData"
+        :active-role="activeRole"
+        :champion-key="championKey"
+        v-if="activeTab < 4"
+      />
 
       <ChampionTierlistStats :champions="lolstats.tierlistData" v-if="activeTab == 5" />
     </div>
@@ -155,6 +184,7 @@ await lolstats.createTierList(SelectedGameMode.value)
     justify-content: center;
     width: 40px;
     height: 40px;
+    cursor: pointer;
 
     img {
       width: 22px;
@@ -162,7 +192,7 @@ await lolstats.createTierList(SelectedGameMode.value)
     }
   }
   .active {
-    background-color: rgba(255, 255, 255, 0.075);
+    background-color: rgba(255, 255, 255, 0.3);
   }
 }
 

@@ -1,3 +1,18 @@
+<script setup>
+import { ref } from 'vue'
+
+defineEmits(['championQuery', 'selectedRole'])
+
+var championKey = ref('')
+var playerKey = ref('')
+
+const activeRole = ref('NONE')
+
+const changeRole = async (roleNr) => {
+  activeRole.value = roleNr
+}
+</script>
+
 <template>
   <div>
     <header class="overviewFilters">
@@ -7,12 +22,42 @@
           <p>Filters:</p>
         </div>
         <ul class="filterWidget">
-          <li class="active"><img src="@/assets/icons/laneIco/NONE.png" alt="" /></li>
-          <li><img src="@/assets/icons/laneIco/TOP.png" alt="" /></li>
-          <li><img src="@/assets/icons/laneIco/JUNGLE.png" alt="" /></li>
-          <li><img src="@/assets/icons/laneIco/MIDDLE.png" alt="" /></li>
-          <li><img src="@/assets/icons/laneIco/BOTTOM.png" alt="" /></li>
-          <li><img src="@/assets/icons/laneIco/UTILITY.png" alt="" /></li>
+          <li
+            :class="{ active: activeRole == 'NONE' }"
+            @click="changeRole('NONE'), $emit('selectedRole', activeRole)"
+          >
+            <img src="@/assets/icons/laneIco/NONE.png" alt="" />
+          </li>
+          <li
+            :class="{ active: activeRole == 'TOP' }"
+            @click="changeRole('TOP'), $emit('selectedRole', activeRole)"
+          >
+            <img src="@/assets/icons/laneIco/TOP.png" alt="" />
+          </li>
+          <li
+            :class="{ active: activeRole == 'JUNGLE' }"
+            @click="changeRole('JUNGLE'), $emit('selectedRole', activeRole)"
+          >
+            <img src="@/assets/icons/laneIco/JUNGLE.png" alt="" />
+          </li>
+          <li
+            :class="{ active: activeRole == 'MIDDLE' }"
+            @click="changeRole('MIDDLE'), $emit('selectedRole', activeRole)"
+          >
+            <img src="@/assets/icons/laneIco/MIDDLE.png" alt="" />
+          </li>
+          <li
+            :class="{ active: activeRole == 'BOTTOM' }"
+            @click="changeRole('BOTTOM'), $emit('selectedRole', activeRole)"
+          >
+            <img src="@/assets/icons/laneIco/BOTTOM.png" alt="" />
+          </li>
+          <li
+            :class="{ active: activeRole == 'UTILITY' }"
+            @click="changeRole('UTILITY'), $emit('selectedRole', activeRole)"
+          >
+            <img src="@/assets/icons/laneIco/UTILITY.png" alt="" />
+          </li>
         </ul>
         <div class="filterTab fc">
           <p>All Ranked</p>
@@ -20,18 +65,24 @@
         <div class="filterTab fc">
           <p>Season 13</p>
         </div>
-        <form action="">
-          <input type="text" class="filterTab filterTab--search" placeholder="Search Champion..." />
-        </form>
-        <form action="">
-          <input type="text" class="filterTab filterTab--search" placeholder="Search Players..." />
-        </form>
+        <input
+          type="text"
+          v-model="championKey"
+          @keyup="$emit('championQuery', championKey)"
+          class="filterTab filterTab--search"
+          placeholder="Search Champion..."
+        />
+        <input
+          type="text"
+          v-model="playerKey"
+          @keypress="$emit('playerQuery', playerKey)"
+          class="filterTab filterTab--search"
+          placeholder="Search Players..."
+        />
       </div>
     </header>
   </div>
 </template>
-
-<script setup></script>
 
 <style lang="scss" scoped>
 .laneFilters {
@@ -79,6 +130,7 @@
     justify-content: center;
     width: 40px;
     height: 40px;
+    cursor: pointer;
 
     img {
       width: 22px;
@@ -86,7 +138,7 @@
     }
   }
   .active {
-    background-color: rgba(255, 255, 255, 0.075);
+    background-color: rgba(255, 255, 255, 0.3);
   }
 }
 

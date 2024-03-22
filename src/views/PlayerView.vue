@@ -1,6 +1,6 @@
 <script setup>
 import { nunubot } from '@/stores/nunubot'
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import PlayerMatchList from '@/components/elements/PlayerMatchList.vue'
 import PlayerFilters from '@/components/interactables/Playerfilters.vue'
 import PlayerChampionBanner from '@/components/elements/PlayerChampionBanner.vue'
@@ -14,6 +14,17 @@ await lolstats.fetchSummonerMatchListById(lolstats.summonerRegion, lolstats.prof
 await lolstats.findChampionStats()
 await lolstats.FindRecentlyPlayedWith()
 reactive(lolstats.matchData)
+var championQuery = ref('')
+var selectedRole = ref('NONE')
+
+const filterChampions = (query) => {
+  championQuery.value = query
+}
+
+const filterRoles = (role) => {
+  selectedRole.value = role
+}
+
 console.log(lolstats.matchData)
 console.log(lolstats.matchHistory.length)
 
@@ -28,7 +39,7 @@ let flexRankStats = lolstats.flexRankStats
       :bannerImg="lolstats.championStats[0].championName"
     />
 
-    <PlayerFilters />
+    <PlayerFilters @champion-query="filterChampions" @selected-role="filterRoles" />
 
     <section class="contentWrapper">
       <PlayerLeftSidebar
@@ -43,6 +54,8 @@ let flexRankStats = lolstats.flexRankStats
           v-for="matches in lolstats.matchInfo"
           :match="matches"
           :matchData="lolstats.matchData"
+          :championKey="championQuery"
+          :filterRoles="selectedRole"
           :key="matches.id"
         />
       </div>
