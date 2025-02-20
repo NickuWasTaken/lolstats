@@ -14,15 +14,15 @@
 
 ## Key Features
 
-* Player search (Suggested search terms: "Scissoring Gwen", "Nicku")
+* Player search (Suggested search terms: "Nicku")
 * Champion statistics and tierlists
 * Player match history and performance statistics
 
 
+This project is a work in progress but heres a <a href="https://nicku.dk/lolstats-showcase.mp4">video showcasing key features</a>
 
 ## Disclaimer
 Some image links may be broken as riot has yet to upload the newest data dragon asset pack. <br />
-This project is a work in progress but heres a <a href="https://nicku.dk/lolstats-showcase.mp4">video showcasing key features</a>
 
 ## Credits
 
