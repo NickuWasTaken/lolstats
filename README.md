@@ -1,13 +1,12 @@
 <h1 align="center">
-  Nordbo-robotics
+  LOLSTATS
 </h1>
 
-<h4 align="center">An online interactive tool that guides sales through the process of knowing when to use which robot solution</h4>
+<h4 align="center">An online interactive tool that guides Players</h4>
 
 
 <p align="center">
   <a href="#key-features">Key Features</a> •
-  <a href="#how-to-use">How To Use</a> •
   <a href="#credits">Credits</a> •
   <a href="#license">Made by</a>
 </p>
@@ -20,23 +19,7 @@
 * Player match history and performance statistics
 
 
-## How To Use
 
-To clone and run this application, you'll need [Git](https://git-scm.com) and [Node.js](https://nodejs.org/en/download/) (which comes with [npm](http://npmjs.com)) installed on your computer. From your command line:
-
-```bash
-# Clone this repository
-$ git clone https://github.com//NickuWasTaken/lolstats.git
-
-# Go into the repository
-$ cd lolstats
-
-# Install dependencies
-$ npm install
-
-# Run the app
-$ npm run dev
-```
 ## Disclaimer
 Some image links may be broken as riot has yet to upload the newest data dragon asset pack. <br />
 If the project doesn't work heres a <a href="https://nicku.dk/lolstats-showcase.mp4">video showcasing key features</a>
